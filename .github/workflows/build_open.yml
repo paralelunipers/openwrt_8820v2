@@ -37,7 +37,6 @@ jobs:
           sudo -E apt update
 
           # Safely purge commonly unwanted packages only if they are installed.
-          # This avoids apt failing with exit code 100 when globs don't match anything.
           PKG_PATTERN='^(azure-cli|ghc|zulu|llvm|firefox|google|dotnet|powershell|openjdk|mysql|php|mongodb|snap)'
           PKGS_TO_PURGE=$(dpkg-query -W -f='${Package}\n' 2>/dev/null | grep -E "$PKG_PATTERN" || true)
           if [ -n "$PKGS_TO_PURGE" ]; then
@@ -47,9 +46,24 @@ jobs:
             echo "No matching packages to purge"
           fi
 
+          # Ensure required build dependencies (including ncurses) are installed.
+          # ncurses development headers/libraries are required by the OpenWrt host build.
           sudo -E apt -y full-upgrade
-          sudo -E apt -y install ack antlr3 aria2 asciidoc autoconf automake autopoint binutils bison build-essential bzip2 ccache cmake cpio curl device-tree-compiler fastjar flex gawk gettext gcc-multilib g++-multilib git gperf haveged help2man intltool libc6-dev-i386 libelf-dev libglib2.0-dev libgmp3-dev libltdl-dev libmpc-dev libmpfr-dev libncurses5-dev libncursesw5-dev libpython3-dev libreadline-dev libssl-dev libtool lrzsz mkisofs msmtp ninja-build p7zip-full patch pkgconf python3 python3-pip python3-ply python-docutils qemu-utils rsync scons squashfs-tools subversion swig texinfo uglifyjs upx-ucl unzip vim wget xmlto xxd zlib1g-dev || true
+          sudo -E apt -y install \
+            ack antlr3 aria2 asciidoc autoconf automake autopoint \
+            binutils bison build-essential bzip2 ccache cmake cpio curl \
+            device-tree-compiler fastjar flex gawk gettext gcc-multilib g++-multilib \
+            git gperf haveged help2man intltool libc6-dev-i386 libelf-dev \
+            libglib2.0-dev libgmp3-dev libltdl-dev libmpc-dev libmpfr-dev \
+            libncurses5-dev libncursesw5-dev libncurses-dev \
+            libpython3-dev libreadline-dev libssl-dev libtool lrzsz mkisofs msmtp \
+            ninja-build p7zip-full patch pkgconf python3 python3-pip python3-ply \
+            python-docutils qemu-utils rsync scons squashfs-tools subversion swig texinfo \
+            uglifyjs upx-ucl unzip vim wget xmlto xxd zlib1g-dev
+
+          # Some smaller redundancy installs (keeps compatibility with prior workflow)
           sudo -E apt -y install binutils bzip2 diffutils flex gawk grep libc-dev libz-dev make perl rsync subversion unzip || true
+
           sudo -E systemctl daemon-reload
           sudo -E apt -y autoremove --purge
           sudo -E apt clean
