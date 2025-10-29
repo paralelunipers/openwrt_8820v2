@@ -1,3 +1,10 @@
+# 
+# <https://github.com/KFERMercer/OpenWrt-CI>
+#
+# Copyright (C) 2019 P3TERX
+#
+# Copyright (C) 2020 KFERMercer
+#
 name: Build OpenWrt 23.05
 
 on:
@@ -15,7 +22,9 @@ on:
 
 jobs:
   build_openwrt:
+
     name: Build OpenWrt Firmware
+
     runs-on: ubuntu-latest
 
     steps:
@@ -23,39 +32,28 @@ jobs:
         env:
           DEBIAN_FRONTEND: noninteractive
         run: |
-          # Free up space first
-          sudo rm -rf /usr/share/dotnet /etc/mysql /etc/php /etc/apt/sources.list.d /usr/local/lib/android
-          sudo apt-mark hold grub-efi-amd64-signed
-          
-          # Clean package lists and update
-          sudo rm -rf /var/lib/apt/lists/*
-          sudo apt clean
-          sudo apt update
-          
-          # Remove unnecessary packages first
-          sudo apt -y purge azure-cli* ghc* zulu* llvm* firefox google* dotnet* powershell* openjdk* mysql* php* mongodb* dotnet* snap*
-          
-          # Update and upgrade system
-          sudo apt -y upgrade
-          
-          # Install required packages in smaller groups
-          sudo apt -y install ack antlr3 aria2 asciidoc autoconf automake autopoint
-          sudo apt -y install binutils bison build-essential bzip2 ccache cmake cpio curl
-          sudo apt -y install device-tree-compiler fastjar flex gawk gettext gcc-multilib g++-multilib
-          sudo apt -y install git gperf haveged help2man intltool libc6-dev-i386 libelf-dev
-          sudo apt -y install libglib2.0-dev libgmp3-dev libltdl-dev libmpc-dev libmpfr-dev
-          sudo apt -y install libncurses5-dev libncursesw5-dev libpython3-dev libreadline-dev
-          sudo apt -y install libssl-dev libtool lrzsz mkisofs msmtp nano ninja-build p7zip-full
-          sudo apt -y install patch pkgconf python3 python3-pip python3-ply python-docutils qemu-utils
-          sudo apt -y install rsync scons squashfs-tools subversion swig texinfo uglifyjs upx-ucl
-          sudo apt -y install unzip vim wget xmlto xxd zlib1g-dev
-          
-          # Set timezone
-          sudo timedatectl set-timezone "Asia/Shanghai"
-          
-          # Clean up
-          sudo apt -y autoremove --purge
-          sudo apt clean
+          sudo -E rm -rf /usr/share/dotnet /etc/mysql /etc/php /etc/apt/sources.list.d /usr/local/lib/android
+          sudo -E apt-mark hold grub-efi-amd64-signed
+          sudo -E apt update
+
+          # Safely purge commonly unwanted packages only if they are installed.
+          # This avoids apt failing with exit code 100 when globs don't match anything.
+          PKG_PATTERN='^(azure-cli|ghc|zulu|llvm|firefox|google|dotnet|powershell|openjdk|mysql|php|mongodb|snap)'
+          PKGS_TO_PURGE=$(dpkg-query -W -f='${Package}\n' 2>/dev/null | grep -E "$PKG_PATTERN" || true)
+          if [ -n "$PKGS_TO_PURGE" ]; then
+            echo "Purging packages: $PKGS_TO_PURGE"
+            sudo -E apt -y purge $PKGS_TO_PURGE
+          else
+            echo "No matching packages to purge"
+          fi
+
+          sudo -E apt -y full-upgrade
+          sudo -E apt -y install ack antlr3 aria2 asciidoc autoconf automake autopoint binutils bison build-essential bzip2 ccache cmake cpio curl device-tree-compiler fastjar flex gawk gettext gcc-multilib g++-multilib git gperf haveged help2man intltool libc6-dev-i386 libelf-dev libglib2.0-dev libgmp3-dev libltdl-dev libmpc-dev libmpfr-dev libncurses5-dev libncursesw5-dev libpython3-dev libreadline-dev libssl-dev libtool lrzsz mkisofs msmtp ninja-build p7zip-full patch pkgconf python3 python3-pip python3-ply python-docutils qemu-utils rsync scons squashfs-tools subversion swig texinfo uglifyjs upx-ucl unzip vim wget xmlto xxd zlib1g-dev || true
+          sudo -E apt -y install binutils bzip2 diffutils flex gawk grep libc-dev libz-dev make perl rsync subversion unzip || true
+          sudo -E systemctl daemon-reload
+          sudo -E apt -y autoremove --purge
+          sudo -E apt clean
+          sudo -E timedatectl set-timezone "Asia/Shanghai"
 
       - name: Checkout OpenWrt
         uses: actions/checkout@v3
@@ -70,6 +68,7 @@ jobs:
         run: |
           make defconfig
           cp -rf ./productconfig/${{ inputs.set_target }}_defconfig .config
+          
 
       - name: Download packages
         run: make download -j16
