@@ -5,7 +5,7 @@
 #
 # Copyright (C) 2020 KFERMercer
 #
-name: Build OpenWrt 23.05
+name: Build OpenWrt 23.05 Updated
 
 on:
   repository_dispatch:
@@ -69,13 +69,15 @@ jobs:
 
       - name: Generate configuration file
         run: |
-          make defconfig
           cp -rf ./productconfig/${{ inputs.set_target }}_defconfig .config
-          
+          make oldconfig
 
       - name: Download packages
         run: make download -j16
 
+      - name: Update config
+        run: make oldconfig
+        
       - name: Compile firmware
         run: |
           make -j$(nproc) || make -j1 V=s
