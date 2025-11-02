@@ -61,7 +61,7 @@ jobs:
       - name: Checkout OpenWrt
         uses: actions/checkout@v3
         with:
-          repository: 'username/nama-repo-fork-anda'
+          repository: 'paralelunipers/openwrt_8820v2'
           ref: 'openwrt-21.02'
           
       - name: Update feeds
@@ -119,3 +119,4 @@ jobs:
           name: OpenWrt_firmware
 
           path: ./bin/targets/
+
