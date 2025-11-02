@@ -60,7 +60,10 @@ jobs:
       
       - name: Checkout OpenWrt
         uses: actions/checkout@v3
-
+        with:
+          repository: 'username/nama-repo-fork-anda'
+          ref: 'openwrt-21.02'
+          
       - name: Update feeds
         run: |
           sed -i 's/#src-git helloworld/src-git helloworld/g' ./feeds.conf.default
@@ -114,4 +117,5 @@ jobs:
         uses: actions/upload-artifact@main
         with:
           name: OpenWrt_firmware
+
           path: ./bin/targets/
