@@ -66,6 +66,7 @@ jobs:
           
       - name: Update feeds
         run: |
+          git config --global --unset-all url."https://mirror.ghproxy.com/https://github.com/".insteadOf
           sed -i 's/#src-git helloworld/src-git helloworld/g' ./feeds.conf.default
           ./scripts/feeds update -a
           ./scripts/feeds install -a
@@ -119,4 +120,5 @@ jobs:
           name: OpenWrt_firmware
 
           path: ./bin/targets/
+
 
