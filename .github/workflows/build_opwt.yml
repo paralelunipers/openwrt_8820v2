@@ -61,7 +61,7 @@ jobs:
       - name: Checkout OpenWrt
         uses: actions/checkout@v3
         with:
-          repository: 'paralelunipers/openwrt_8820v2'
+          repository: 'siwind/openwrt'
           ref: 'openwrt-21.02'
           
       - name: Update feeds
@@ -72,7 +72,8 @@ jobs:
 
       - name: Generate configuration file
         run: |
-          cp -rf ./productconfig/${{ inputs.set_target }}_defconfig .config
+          # cp -rf ./productconfig/${{ inputs.set_target }}_defconfig .config
+          curl -sL -o .config "https://raw.githubusercontent.com/paralelunipers/openwrt_8820v2/refs/heads/openwrt-21.02/productconfig/zte_e8820v2_defconfig"
           make oldconfig
 
       - name: Download packages
@@ -119,6 +120,7 @@ jobs:
           name: OpenWrt_firmware
 
           path: ./bin/targets/
+
 
 
 
