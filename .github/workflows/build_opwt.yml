@@ -73,7 +73,7 @@ jobs:
       - name: Generate configuration file
         run: |
           curl -sL -o .config "https://raw.githubusercontent.com/paralelunipers/openwrt_8820v2/refs/heads/openwrt-21.02/productconfig/zte_e8820v2_defconfig"
-          make oldconfig
+          make oldconfig FORCE=1
 
       - name: Download packages
         run: make download -j16
@@ -119,6 +119,7 @@ jobs:
           name: OpenWrt_firmware
 
           path: ./bin/targets/
+
 
 
 
