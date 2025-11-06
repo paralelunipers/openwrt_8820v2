@@ -56,7 +56,7 @@ jobs:
           sudo -E timedatectl set-timezone "Asia/Jakarta"
                     
       - name: Install build dependencies
-        run: sudo apt-get update && sudo apt-get install -y libncurses-dev python3.10 python3-setuptools
+        run: sudo apt-get update && sudo apt-get install -y libncurses-dev python3.10 python3-disutils
       
       - name: Checkout OpenWrt
         uses: actions/checkout@v3
@@ -119,6 +119,7 @@ jobs:
           name: OpenWrt_firmware
 
           path: ./bin/targets/
+
 
 
 
