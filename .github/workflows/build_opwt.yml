@@ -25,7 +25,7 @@ jobs:
 
     name: Build OpenWrt Firmware
 
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
 
     steps:
       - name: Space cleanup and Initialization environment
@@ -119,6 +119,7 @@ jobs:
           name: OpenWrt_firmware
 
           path: ./bin/targets/
+
 
 
 
